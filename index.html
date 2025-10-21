@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ビンゴ（参加者）</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    table { margin: auto; border-collapse: collapse; }
+    td {
+      width: 60px; height: 60px;
+      border: 1px solid #666;
+      text-align: center;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    td.checked { background: orange; color: white; }
+  </style>
+</head>
+<body>
+  <h1>🎲 ビンゴカード</h1>
+  <table id="bingo"></table>
+
+  <script>
+    const table = document.getElementById("bingo");
+    const numbers = Array.from({ length: 25 }, (_, i) => i + 1)
+      .sort(() => Math.random() - 0.5);
+    for (let i = 0; i < 5; i++) {
+      const row = document.createElement("tr");
+      for (let j = 0; j < 5; j++) {
+        const cell = document.createElement("td");
+        cell.textContent = numbers[i * 5 + j];
+        cell.onclick = () => cell.classList.toggle("checked");
+        row.appendChild(cell);
+      }
+      table.appendChild(row);
+    }
+  </script>
+</body>
+</html>
