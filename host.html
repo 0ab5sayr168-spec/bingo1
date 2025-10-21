@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ビンゴ（主催者）</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+    h2 { font-size: 28px; }
+  </style>
+</head>
+<body>
+  <h1>🎤 ビンゴ抽選</h1>
+  <h2 id="num">?</h2>
+  <button id="draw">番号を出す</button>
+  <div id="list"></div>
+
+  <script>
+    const nums = Array.from({ length: 75 }, (_, i) => i + 1);
+    const drawBtn = document.getElementById("draw");
+    const numDisplay = document.getElementById("num");
+    const list = document.getElementById("list");
+
+    drawBtn.onclick = () => {
+      if (nums.length === 0) {
+        numDisplay.textContent = "終了！";
+        return;
+      }
+      const i = Math.floor(Math.random() * nums.length);
+      const n = nums.splice(i, 1)[0];
+      numDisplay.textContent = n;
+      list.textContent += n + " ";
+    };
+  </script>
+</body>
+</html>
