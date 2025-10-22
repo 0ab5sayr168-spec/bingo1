@@ -22,7 +22,7 @@
 
   <script>
     const table = document.getElementById("bingo");
-    const numbers = Array.from({ length: 25 }, (_, i) => i + 1)
+    const numbers = Array.from({ length: 75 }, (_, i) => i + 1)
       .sort(() => Math.random() - 0.5);
     for (let i = 0; i < 5; i++) {
       const row = document.createElement("tr");
