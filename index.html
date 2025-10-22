@@ -2,37 +2,108 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ビンゴ（参加者）</title>
+  <title>🎉 ビンゴカード（参加者）🎉</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    table { margin: auto; border-collapse: collapse; }
-    td {
-      width: 60px; height: 60px;
-      border: 1px solid #666;
+    body {
+      font-family: 'Comic Sans MS', sans-serif;
       text-align: center;
-      font-size: 24px;
-      cursor: pointer;
+      background: linear-gradient(135deg, #ffcc70, #ff8177);
+      color: white;
+      margin: 0;
+      padding: 20px;
     }
-    td.checked { background: orange; color: white; }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 36px;
+      text-shadow: 2px 2px 4px #ff4081;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    td {
+      width: 70px;
+      height: 70px;
+      border: 2px solid white;
+      text-align: center;
+      font-size: 26px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.2s ease;
+    }
+    td:hover {
+      background: rgba(255,255,255,0.4);
+    }
+    td.checked {
+      background: #ff5722;
+      color: white;
+      transform: scale(1.1);
+    }
+    td.free {
+      background: gold;
+      color: #d50000;
+      font-weight: bold;
+    }
+    #message {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 20px;
+      text-shadow: 2px 2px 6px #000;
+    }
   </style>
 </head>
 <body>
-  <h1>🎲 ビンゴカード</h1>
+  <h1>🎯 ビンゴカード 🎯</h1>
   <table id="bingo"></table>
+  <div id="message"></div>
 
   <script>
     const table = document.getElementById("bingo");
     const numbers = Array.from({ length: 75 }, (_, i) => i + 1)
-      .sort(() => Math.random() - 0.5);
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 25);
+
+    let cells = [];
+
     for (let i = 0; i < 5; i++) {
       const row = document.createElement("tr");
       for (let j = 0; j < 5; j++) {
+        const index = i * 5 + j;
         const cell = document.createElement("td");
-        cell.textContent = numbers[i * 5 + j];
-        cell.onclick = () => cell.classList.toggle("checked");
+
+        if (index === 12) { // 中央のマス
+          cell.textContent = "FREE!";
+          cell.classList.add("checked", "free");
+        } else {
+          cell.textContent = numbers[index];
+          cell.onclick = () => {
+            cell.classList.toggle("checked");
+            checkBingo();
+          };
+        }
         row.appendChild(cell);
+        cells.push(cell);
       }
       table.appendChild(row);
+    }
+
+    function checkBingo() {
+      const grid = Array(5).fill().map((_, i) => cells.slice(i*5, i*5+5));
+      const lines = [
+        ...grid, // 横
+        ...[0,1,2,3,4].map(i => grid.map(r => r[i])), // 縦
+        grid.map((r,i)=>r[i]), // 斜め1
+        grid.map((r,i)=>r[4-i]) // 斜め2
+      ];
+
+      const bingo = lines.some(line => line.every(c => c.classList.contains("checked")));
+      const message = document.getElementById("message");
+      if (bingo) {
+        message.textContent = "🎉✨ BINGO!! ✨🎉";
+        message.style.color = "#ffff00";
+        message.style.textShadow = "0 0 20px red";
+      }
     }
   </script>
 </body>
