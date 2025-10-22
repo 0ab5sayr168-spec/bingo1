@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ★スマホ対応 -->
   <title>🎉 ビンゴカード（参加者）🎉</title>
   <style>
     body {
@@ -14,23 +15,26 @@
     }
     h1 {
       margin-bottom: 10px;
-      font-size: 36px;
+      font-size: clamp(24px, 6vw, 36px); /* ★スマホで自動調整 */
       text-shadow: 2px 2px 4px #ff4081;
     }
     table {
       margin: 20px auto;
       border-collapse: collapse;
       box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      width: 90vw; /* ★画面に合わせて拡縮 */
+      max-width: 400px; /* ★大画面ではこれ以上広がらない */
+      aspect-ratio: 1 / 1; /* ★正方形を維持 */
     }
     td {
-      width: 70px;
-      height: 70px;
       border: 2px solid white;
       text-align: center;
-      font-size: 26px;
+      font-size: clamp(16px, 5vw, 26px); /* ★スマホ対応文字サイズ */
       cursor: pointer;
       background: rgba(255,255,255,0.2);
       transition: all 0.2s ease;
+      width: 20%;  /* ★5列で均等割り */
+      height: 20%; /* ★縦も同じ比率に */
     }
     td:hover {
       background: rgba(255,255,255,0.4);
@@ -38,7 +42,7 @@
     td.checked {
       background: #ff5722;
       color: white;
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
     td.free {
       background: gold;
@@ -46,7 +50,7 @@
       font-weight: bold;
     }
     #message {
-      font-size: 32px;
+      font-size: clamp(20px, 6vw, 32px); /* ★可変サイズ */
       font-weight: bold;
       margin-top: 20px;
       text-shadow: 2px 2px 6px #000;
