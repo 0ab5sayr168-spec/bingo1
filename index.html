@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎉 ビンゴカード（参加者）🎉</title>
   <style>
     body {
@@ -11,54 +10,43 @@
       background: linear-gradient(135deg, #ffcc70, #ff8177);
       color: white;
       margin: 0;
-      padding: 0; /* ←余白をなくす */
+      padding: 20px;
     }
-
     h1 {
-      margin: 20px 0 10px 0; /* ←上に少し余白、下は控えめ */
-      font-size: clamp(24px, 6vw, 36px);
+      margin-bottom: 10px;
+      font-size: 36px;
       text-shadow: 2px 2px 4px #ff4081;
     }
-
     table {
-      margin: 15px auto 0 auto; /* ←タイトルとの間に少し空ける */
+      margin: 20px auto;
       border-collapse: collapse;
       box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      width: 85vw; /* ★画面幅に合わせる */
-      max-width: 400px; /* ★大画面ではこれ以上広がらない */
-      aspect-ratio: 1 / 1.1; /* ★正方形より少し縦長 */
-      background: rgba(255,255,255,0.15);
     }
-
     td {
+      width: 70px;
+      height: 70px;
       border: 2px solid white;
       text-align: center;
-      font-size: clamp(16px, 5vw, 26px);
+      font-size: 26px;
       cursor: pointer;
       background: rgba(255,255,255,0.2);
       transition: all 0.2s ease;
-      width: 20%;
-      height: 20%;
     }
-
     td:hover {
       background: rgba(255,255,255,0.4);
     }
-
     td.checked {
       background: #ff5722;
       color: white;
-      transform: scale(1.05);
+      transform: scale(1.1);
     }
-
     td.free {
       background: gold;
       color: #d50000;
       font-weight: bold;
     }
-
     #message {
-      font-size: clamp(20px, 6vw, 32px);
+      font-size: 32px;
       font-weight: bold;
       margin-top: 20px;
       text-shadow: 2px 2px 6px #000;
@@ -84,7 +72,7 @@
         const index = i * 5 + j;
         const cell = document.createElement("td");
 
-        if (index === 12) {
+        if (index === 12) { // 中央のマス
           cell.textContent = "FREE!";
           cell.classList.add("checked", "free");
         } else {
@@ -101,12 +89,12 @@
     }
 
     function checkBingo() {
-      const grid = Array(5).fill().map((_, i) => cells.slice(i * 5, i * 5 + 5));
+      const grid = Array(5).fill().map((_, i) => cells.slice(i*5, i*5+5));
       const lines = [
         ...grid, // 横
-        ...[0, 1, 2, 3, 4].map(i => grid.map(r => r[i])), // 縦
-        grid.map((r, i) => r[i]), // 斜め1
-        grid.map((r, i) => r[4 - i]) // 斜め2
+        ...[0,1,2,3,4].map(i => grid.map(r => r[i])), // 縦
+        grid.map((r,i)=>r[i]), // 斜め1
+        grid.map((r,i)=>r[4-i]) // 斜め2
       ];
 
       const bingo = lines.some(line => line.every(c => c.classList.contains("checked")));
