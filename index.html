@@ -2,58 +2,87 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ★スマホ対応 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- スマホ対応 -->
   <title>🎉 ビンゴカード（参加者）🎉</title>
   <style>
+    /* ===== 全体 ===== */
     body {
-      font-family: 'Comic Sans MS', sans-serif;
+      font-family: "Comic Sans MS", "Arial", sans-serif;
       text-align: center;
-      background: linear-gradient(135deg, #ffcc70, #ff8177);
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
       color: white;
       margin: 0;
       padding: 20px;
     }
+
     h1 {
-      margin-bottom: 10px;
-      font-size: clamp(24px, 6vw, 36px); /* ★スマホで自動調整 */
-      text-shadow: 2px 2px 4px #ff4081;
+      margin: 10px 0 20px;
+      font-size: clamp(24px, 6vw, 36px);
+      text-shadow: 2px 2px 6px #d81b60;
     }
+
+    /* ===== ビンゴ表 ===== */
     table {
-      margin: 20px auto;
+      margin: 0 auto;
       border-collapse: collapse;
+      width: 90vw;           /* スマホで画面幅に収まる */
+      max-width: 400px;
+      aspect-ratio: 1 / 1;   /* 正方形を維持 */
       box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      width: 90vw; /* ★画面に合わせて拡縮 */
-      max-width: 400px; /* ★大画面ではこれ以上広がらない */
-      aspect-ratio: 1 / 1; /* ★正方形を維持 */
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
     }
+
     td {
-      border: 2px solid white;
+      width: 20%;
+      height: 20%;
+      border: 2px solid rgba(255,255,255,0.8);
       text-align: center;
-      font-size: clamp(16px, 5vw, 26px); /* ★スマホ対応文字サイズ */
-      cursor: pointer;
+      font-size: clamp(16px, 5vw, 28px);
+      font-weight: bold;
+      color: #fff;
       background: rgba(255,255,255,0.2);
+      cursor: pointer;
       transition: all 0.2s ease;
-      width: 20%;  /* ★5列で均等割り */
-      height: 20%; /* ★縦も同じ比率に */
+      user-select: none; /* 長押し選択防止 */
     }
+
     td:hover {
-      background: rgba(255,255,255,0.4);
-    }
-    td.checked {
-      background: #ff5722;
-      color: white;
+      background: rgba(255,255,255,0.35);
       transform: scale(1.05);
     }
+
+    td.checked {
+      background: #ff7043;
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+
     td.free {
       background: gold;
       color: #d50000;
       font-weight: bold;
+      text-shadow: 0 0 4px white;
     }
+
+    /* ===== メッセージ ===== */
     #message {
-      font-size: clamp(20px, 6vw, 32px); /* ★可変サイズ */
+      font-size: clamp(20px, 6vw, 32px);
       font-weight: bold;
-      margin-top: 20px;
-      text-shadow: 2px 2px 6px #000;
+      margin-top: 25px;
+      text-shadow: 2px 2px 10px #000;
+      transition: 0.3s;
+    }
+
+    /* ===== BINGOエフェクト ===== */
+    @keyframes bingoFlash {
+      0%, 100% { text-shadow: 0 0 20px red, 0 0 40px yellow; color: yellow; }
+      50% { text-shadow: 0 0 40px yellow, 0 0 60px orange; color: white; }
+    }
+
+    .bingo {
+      animation: bingoFlash 1s infinite;
     }
   </style>
 </head>
@@ -64,19 +93,21 @@
 
   <script>
     const table = document.getElementById("bingo");
+    const message = document.getElementById("message");
     const numbers = Array.from({ length: 75 }, (_, i) => i + 1)
       .sort(() => Math.random() - 0.5)
       .slice(0, 25);
 
-    let cells = [];
+    const cells = [];
 
+    // 5x5のカードを作成
     for (let i = 0; i < 5; i++) {
       const row = document.createElement("tr");
       for (let j = 0; j < 5; j++) {
         const index = i * 5 + j;
         const cell = document.createElement("td");
 
-        if (index === 12) { // 中央のマス
+        if (index === 12) {
           cell.textContent = "FREE!";
           cell.classList.add("checked", "free");
         } else {
@@ -86,27 +117,30 @@
             checkBingo();
           };
         }
+
         row.appendChild(cell);
         cells.push(cell);
       }
       table.appendChild(row);
     }
 
+    // BINGO判定関数
     function checkBingo() {
-      const grid = Array(5).fill().map((_, i) => cells.slice(i*5, i*5+5));
+      const grid = Array(5).fill().map((_, i) => cells.slice(i * 5, i * 5 + 5));
       const lines = [
         ...grid, // 横
         ...[0,1,2,3,4].map(i => grid.map(r => r[i])), // 縦
-        grid.map((r,i)=>r[i]), // 斜め1
-        grid.map((r,i)=>r[4-i]) // 斜め2
+        grid.map((r, i) => r[i]), // 斜め①
+        grid.map((r, i) => r[4 - i]) // 斜め②
       ];
 
       const bingo = lines.some(line => line.every(c => c.classList.contains("checked")));
-      const message = document.getElementById("message");
       if (bingo) {
         message.textContent = "🎉✨ BINGO!! ✨🎉";
-        message.style.color = "#ffff00";
-        message.style.textShadow = "0 0 20px red";
+        message.classList.add("bingo");
+      } else {
+        message.textContent = "";
+        message.classList.remove("bingo");
       }
     }
   </script>
