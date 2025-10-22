@@ -2,25 +2,111 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ビンゴ（主催者）</title>
+  <title>🎤 ビンゴ抽選（主催者）</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
-    h2 { font-size: 28px; }
+    body {
+      font-family: 'Comic Sans MS', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ffcc70, #ff8177);
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 36px;
+      text-shadow: 2px 2px 6px #ff4081;
+    }
+    h2 {
+      font-size: 80px;
+      margin: 20px 0;
+      color: yellow;
+      text-shadow: 0 0 20px red;
+      transition: transform 0.2s ease;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #list {
+      font-size: 20px;
+      margin: 15px auto;
+      width: 90%;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 40px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 5px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .num {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 5px;
+      padding: 6px;
+      font-weight: bold;
+    }
+    .num.hit {
+      background: #ff5722;
+      color: white;
+      box-shadow: 0 0 8px #ff5722;
+      transform: scale(1.1);
+    }
+    @keyframes pop {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <h1>🎤 ビンゴ抽選</h1>
   <h2 id="num">?</h2>
   <button id="draw">番号を出す</button>
-  <div id="list"></div>
+  <button id="reset">リセット</button>
+  <div id="list">出た数字: （まだなし）</div>
+
+  <div id="grid"></div>
 
   <script>
-    const nums = Array.from({ length: 75 }, (_, i) => i + 1);
     const drawBtn = document.getElementById("draw");
+    const resetBtn = document.getElementById("reset");
     const numDisplay = document.getElementById("num");
     const list = document.getElementById("list");
+    const grid = document.getElementById("grid");
 
+    let nums, drawn;
+
+    // 初期化関数
+    function init() {
+      nums = Array.from({ length: 75 }, (_, i) => i + 1);
+      drawn = [];
+      numDisplay.textContent = "?";
+      list.textContent = "出た数字: （まだなし）";
+      grid.innerHTML = "";
+      for (let i = 1; i <= 75; i++) {
+        const span = document.createElement("span");
+        span.textContent = i;
+        span.classList.add("num");
+        grid.appendChild(span);
+      }
+    }
+
+    // 番号を出す処理
     drawBtn.onclick = () => {
       if (nums.length === 0) {
         numDisplay.textContent = "終了！";
@@ -28,9 +114,26 @@
       }
       const i = Math.floor(Math.random() * nums.length);
       const n = nums.splice(i, 1)[0];
+      drawn.push(n);
+
+      // 数字のアニメーション
+      numDisplay.style.animation = "pop 0.3s ease";
       numDisplay.textContent = n;
-      list.textContent += n + " ";
+      setTimeout(() => numDisplay.style.animation = "", 300);
+
+      list.textContent = "出た数字: " + drawn.join(", ");
+      document.querySelectorAll(".num")[n - 1].classList.add("hit");
     };
+
+    // リセット処理
+    resetBtn.onclick = () => {
+      if (confirm("ビンゴをリセットしますか？")) {
+        init();
+      }
+    };
+
+    // 最初の状態をセット
+    init();
   </script>
 </body>
 </html>
