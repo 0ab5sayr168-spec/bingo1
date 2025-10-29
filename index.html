@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ★スマホ対応 -->
   <title>🎉 ビンゴカード（参加者）🎉</title>
   <style>
     body {
@@ -10,43 +11,54 @@
       background: linear-gradient(135deg, #ffcc70, #ff8177);
       color: white;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
     }
+
     h1 {
+      margin-top: 20px;
       margin-bottom: 10px;
-      font-size: 36px;
+      font-size: clamp(24px, 6vw, 36px); /* ★スマホで自動調整 */
       text-shadow: 2px 2px 4px #ff4081;
     }
+
     table {
-      margin: 20px auto;
+      margin: 15px auto;
       border-collapse: collapse;
+      width: 90vw;              /* ★スマホ画面いっぱいまで広げる */
+      max-width: 400px;         /* ★大画面ではこれ以上広がらない */
+      aspect-ratio: 1 / 1;      /* ★正方形に維持 */
       box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
+
     td {
-      width: 70px;
-      height: 70px;
       border: 2px solid white;
       text-align: center;
-      font-size: 26px;
+      font-size: clamp(16px, 5vw, 28px); /* ★スマホで見やすく文字調整 */
       cursor: pointer;
       background: rgba(255,255,255,0.2);
       transition: all 0.2s ease;
+      width: 20%;   /* ★5列均等 */
+      height: 20%;  /* ★縦横比も均等 */
     }
+
     td:hover {
       background: rgba(255,255,255,0.4);
     }
+
     td.checked {
       background: #ff5722;
       color: white;
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
+
     td.free {
       background: gold;
       color: #d50000;
       font-weight: bold;
     }
+
     #message {
-      font-size: 32px;
+      font-size: clamp(20px, 6vw, 32px); /* ★画面に合わせる */
       font-weight: bold;
       margin-top: 20px;
       text-shadow: 2px 2px 6px #000;
@@ -74,7 +86,7 @@
 
         if (index === 12) { // 中央のマス
           cell.textContent = "FREE!";
-          cell.classList.add("checked", "FREE‼︎");
+          cell.classList.add("checked", "free");
         } else {
           cell.textContent = numbers[index];
           cell.onclick = () => {
