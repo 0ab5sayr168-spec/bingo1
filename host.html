@@ -37,6 +37,10 @@
     button:hover {
       background: #45a049;
     }
+    button:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
     #list {
       font-size: 20px;
       margin: 15px auto;
@@ -60,13 +64,14 @@
       border-radius: 5px;
       padding: 6px;
       font-weight: bold;
+      transition: transform 0.2s;
     }
     .num.hit {
       background: #ff5722;
-      color: white;
       box-shadow: 0 0 8px #ff5722;
       transform: scale(1.1);
     }
+
     @keyframes pop {
       0% { transform: scale(0.3); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
@@ -91,13 +96,14 @@
 
     let nums, drawn;
 
-    // 初期化関数
+    // 初期化
     function init() {
       nums = Array.from({ length: 75 }, (_, i) => i + 1);
       drawn = [];
       numDisplay.textContent = "?";
       list.textContent = "出た数字: （まだなし）";
       grid.innerHTML = "";
+
       for (let i = 1; i <= 75; i++) {
         const span = document.createElement("span");
         span.textContent = i;
@@ -106,33 +112,51 @@
       }
     }
 
-    // 番号を出す処理
+    // ルーレット付き抽選
     drawBtn.onclick = () => {
       if (nums.length === 0) {
         numDisplay.textContent = "終了！";
         return;
       }
-      const i = Math.floor(Math.random() * nums.length);
-      const n = nums.splice(i, 1)[0];
-      drawn.push(n);
 
-      // 数字のアニメーション
-      numDisplay.style.animation = "pop 0.3s ease";
-      numDisplay.textContent = n;
-      setTimeout(() => numDisplay.style.animation = "", 300);
+      drawBtn.disabled = true;
 
-      list.textContent = "出た数字: " + drawn.join(", ");
-      document.querySelectorAll(".num")[n - 1].classList.add("hit");
+      let elapsed = 0;
+      const duration = 2000; // 2秒
+      const intervalTime = 50;
+
+      const roulette = setInterval(() => {
+        const preview = Math.floor(Math.random() * 75) + 1;
+        numDisplay.textContent = preview;
+        elapsed += intervalTime;
+
+        if (elapsed >= duration) {
+          clearInterval(roulette);
+
+          // 本抽選
+          const i = Math.floor(Math.random() * nums.length);
+          const n = nums.splice(i, 1)[0];
+          drawn.push(n);
+
+          numDisplay.style.animation = "pop 0.3s ease";
+          numDisplay.textContent = n;
+          setTimeout(() => numDisplay.style.animation = "", 300);
+
+          list.textContent = "出た数字: " + drawn.join(", ");
+          document.querySelectorAll(".num")[n - 1].classList.add("hit");
+
+          drawBtn.disabled = false;
+        }
+      }, intervalTime);
     };
 
-    // リセット処理
+    // リセット
     resetBtn.onclick = () => {
       if (confirm("ビンゴをリセットしますか？")) {
         init();
       }
     };
 
-    // 最初の状態をセット
     init();
   </script>
 </body>
