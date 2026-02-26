@@ -46,10 +46,12 @@
       margin: 15px auto;
       width: 90%;
       max-width: 600px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 10px;
       padding: 10px;
       min-height: 40px;
+      color: black; /* ← ここを黒に */
+      font-weight: bold;
     }
     #grid {
       display: grid;
@@ -59,8 +61,8 @@
       margin: 20px auto;
     }
     .num {
-      background: rgba(255, 255, 255, 0.3);
-      color: white;
+      background: rgba(255, 255, 255, 0.8);
+      color: black;
       border-radius: 5px;
       padding: 6px;
       font-weight: bold;
@@ -68,6 +70,7 @@
     }
     .num.hit {
       background: #ff5722;
+      color: black;
       box-shadow: 0 0 8px #ff5722;
       transform: scale(1.1);
     }
@@ -96,7 +99,6 @@
 
     let nums, drawn;
 
-    // 初期化
     function init() {
       nums = Array.from({ length: 75 }, (_, i) => i + 1);
       drawn = [];
@@ -112,7 +114,6 @@
       }
     }
 
-    // ルーレット付き抽選
     drawBtn.onclick = () => {
       if (nums.length === 0) {
         numDisplay.textContent = "終了！";
@@ -122,7 +123,7 @@
       drawBtn.disabled = true;
 
       let elapsed = 0;
-      const duration = 500; // 2秒
+      const duration = 2000;
       const intervalTime = 50;
 
       const roulette = setInterval(() => {
@@ -133,7 +134,6 @@
         if (elapsed >= duration) {
           clearInterval(roulette);
 
-          // 本抽選
           const i = Math.floor(Math.random() * nums.length);
           const n = nums.splice(i, 1)[0];
           drawn.push(n);
@@ -150,7 +150,6 @@
       }, intervalTime);
     };
 
-    // リセット
     resetBtn.onclick = () => {
       if (confirm("ビンゴをリセットしますか？")) {
         init();
