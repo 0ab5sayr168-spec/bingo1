@@ -1,122 +1,165 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ★スマホ対応 -->
-  <title>🎉 ビンゴカード（参加者）🎉</title>
-  <style>
-    body {
-      font-family: 'Comic Sans MS', sans-serif;
-      text-align: center;
-      background: linear-gradient(135deg, #ffcc70, #ff8177);
-      color: white;
-      margin: 0;
-      padding: 10px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>モルックスコア管理</title>
 
-    h1 {
-      margin-top: 20px;
-      margin-bottom: 10px;
-      font-size: clamp(24px, 6vw, 36px); /* ★スマホで自動調整 */
-      text-shadow: 2px 2px 4px #ff4081;
-    }
+<style>
+body {
+    font-family: sans-serif;
+    background: #f4f4f4;
+    text-align: center;
+    padding: 10px;
+}
 
-    table {
-      margin: 15px auto;
-      border-collapse: collapse;
-      width: 90vw;              /* ★スマホ画面いっぱいまで広げる */
-      max-width: 400px;         /* ★大画面ではこれ以上広がらない */
-      aspect-ratio: 1 / 1;      /* ★正方形に維持 */
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
+h1 {
+    margin-bottom: 10px;
+}
 
-    td {
-      border: 2px solid white;
-      text-align: center;
-      font-size: clamp(16px, 5vw, 28px); /* ★スマホで見やすく文字調整 */
-      cursor: pointer;
-      background: rgba(255,255,255,0.2);
-      transition: all 0.2s ease;
-      width: 20%;   /* ★5列均等 */
-      height: 20%;  /* ★縦横比も均等 */
-    }
+.team {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
 
-    td:hover {
-      background: rgba(255,255,255,0.4);
-    }
+input {
+    width: 60px;
+    padding: 5px;
+    font-size: 18px;
+    text-align: center;
+}
 
-    td.checked {
-      background: #ff5722;
-      color: white;
-      transform: scale(1.05);
-    }
+button {
+    padding: 8px 15px;
+    font-size: 16px;
+    margin-left: 5px;
+}
 
-    td.free {
-      background: gold;
-      color: #d50000;
-      font-weight: bold;
-    }
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
 
-    #message {
-      font-size: clamp(20px, 6vw, 32px); /* ★画面に合わせる */
-      font-weight: bold;
-      margin-top: 20px;
-      text-shadow: 2px 2px 6px #000;
-    }
-  </style>
+.history {
+    font-size: 14px;
+    margin-top: 8px;
+    text-align: left;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.resetBtn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+</style>
 </head>
+
 <body>
-  <h1>🎯 ビンゴカード 🎯</h1>
-  <table id="bingo"></table>
-  <div id="message"></div>
 
-  <script>
-    const table = document.getElementById("bingo");
-    const numbers = Array.from({ length: 75 }, (_, i) => i + 1)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 25);
+<h1>🔥 モルックスコア管理 🔥</h1>
 
-    let cells = [];
+<div class="team">
+    <h2>チームA</h2>
+    <input type="number" id="inputA" min="0">
+    <button onclick="addScore('A')">追加</button>
+    <div class="score">合計: <span id="scoreA">0</span></div>
+    <div class="history" id="historyA"></div>
+</div>
 
-    for (let i = 0; i < 5; i++) {
-      const row = document.createElement("tr");
-      for (let j = 0; j < 5; j++) {
-        const index = i * 5 + j;
-        const cell = document.createElement("td");
+<div class="team">
+    <h2>チームB</h2>
+    <input type="number" id="inputB" min="0">
+    <button onclick="addScore('B')">追加</button>
+    <div class="score">合計: <span id="scoreB">0</span></div>
+    <div class="history" id="historyB"></div>
+</div>
 
-        if (index === 12) { // 中央のマス
-          cell.textContent = "FREE!";
-          cell.classList.add("checked", "free");
+<button class="resetBtn" onclick="resetGame()">リセット</button>
+
+<script>
+let scoreA = 0;
+let scoreB = 0;
+let zeroA = 0;
+let zeroB = 0;
+
+function addScore(team) {
+    let input = document.getElementById("input" + team);
+    let value = parseInt(input.value);
+
+    if (isNaN(value)) return;
+
+    if (team === "A") {
+        if (value === 0) {
+            zeroA++;
+            if (zeroA === 3) {
+                scoreA -= 10;
+                zeroA = 0;
+                addHistory("A", "0×3 → -10点");
+            }
         } else {
-          cell.textContent = numbers[index];
-          cell.onclick = () => {
-            cell.classList.toggle("checked");
-            checkBingo();
-          };
+            zeroA = 0;
+            scoreA += value;
+            addHistory("A", "+" + value);
         }
-        row.appendChild(cell);
-        cells.push(cell);
-      }
-      table.appendChild(row);
+
+        if (scoreA > 50) {
+            scoreA = 25;
+            addHistory("A", "50超え → 25点に戻る");
+        }
+
+        document.getElementById("scoreA").textContent = scoreA;
     }
 
-    function checkBingo() {
-      const grid = Array(5).fill().map((_, i) => cells.slice(i*5, i*5+5));
-      const lines = [
-        ...grid, // 横
-        ...[0,1,2,3,4].map(i => grid.map(r => r[i])), // 縦
-        grid.map((r,i)=>r[i]), // 斜め1
-        grid.map((r,i)=>r[4-i]) // 斜め2
-      ];
+    if (team === "B") {
+        if (value === 0) {
+            zeroB++;
+            if (zeroB === 3) {
+                scoreB -= 10;
+                zeroB = 0;
+                addHistory("B", "0×3 → -10点");
+            }
+        } else {
+            zeroB = 0;
+            scoreB += value;
+            addHistory("B", "+" + value);
+        }
 
-      const bingo = lines.some(line => line.every(c => c.classList.contains("checked")));
-      const message = document.getElementById("message");
-      if (bingo) {
-        message.textContent = "🎉✨ BINGO!! ✨🎉";
-        message.style.color = "#ffff00";
-        message.style.textShadow = "0 0 20px red";
-      }
+        if (scoreB > 50) {
+            scoreB = 25;
+            addHistory("B", "50超え → 25点に戻る");
+        }
+
+        document.getElementById("scoreB").textContent = scoreB;
     }
-  </script>
+
+    input.value = "";
+}
+
+function addHistory(team, text) {
+    let historyDiv = document.getElementById("history" + team);
+    let p = document.createElement("div");
+    p.textContent = text;
+    historyDiv.prepend(p);
+}
+
+function resetGame() {
+    scoreA = 0;
+    scoreB = 0;
+    zeroA = 0;
+    zeroB = 0;
+
+    document.getElementById("scoreA").textContent = 0;
+    document.getElementById("scoreB").textContent = 0;
+    document.getElementById("historyA").innerHTML = "";
+    document.getElementById("historyB").innerHTML = "";
+}
+</script>
+
 </body>
 </html>
