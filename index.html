@@ -8,8 +8,9 @@
 <style>
 body {
     font-family: sans-serif;
-    background: #f4f4f4;
+    background: #f2f2f2;
     text-align: center;
+    margin: 0;
     padding: 10px;
 }
 
@@ -20,42 +21,53 @@ h1 {
 .team {
     background: white;
     padding: 15px;
-    margin: 10px 0;
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
-
-input {
-    width: 60px;
-    padding: 5px;
-    font-size: 18px;
-    text-align: center;
-}
-
-button {
-    padding: 8px 15px;
-    font-size: 16px;
-    margin-left: 5px;
+    margin: 15px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .score {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
+    margin: 10px 0;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
     margin-top: 10px;
+}
+
+button {
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: #4CAF50;
+    color: white;
+}
+
+button:active {
+    background: #388E3C;
 }
 
 .history {
     font-size: 14px;
-    margin-top: 8px;
+    margin-top: 10px;
     text-align: left;
     max-height: 120px;
     overflow-y: auto;
+    background: #fafafa;
+    padding: 5px;
+    border-radius: 8px;
 }
 
 .resetBtn {
     margin-top: 15px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
+    background: #f44336;
 }
 </style>
 </head>
@@ -66,17 +78,15 @@ button {
 
 <div class="team">
     <h2>チームA</h2>
-    <input type="number" id="inputA" min="0">
-    <button onclick="addScore('A')">追加</button>
     <div class="score">合計: <span id="scoreA">0</span></div>
+    <div class="buttons" id="buttonsA"></div>
     <div class="history" id="historyA"></div>
 </div>
 
 <div class="team">
     <h2>チームB</h2>
-    <input type="number" id="inputB" min="0">
-    <button onclick="addScore('B')">追加</button>
     <div class="score">合計: <span id="scoreB">0</span></div>
+    <div class="buttons" id="buttonsB"></div>
     <div class="history" id="historyB"></div>
 </div>
 
@@ -88,15 +98,22 @@ let scoreB = 0;
 let zeroA = 0;
 let zeroB = 0;
 
-function addScore(team) {
-    let input = document.getElementById("input" + team);
-    let value = parseInt(input.value);
+function createButtons(team) {
+    const container = document.getElementById("buttons" + team);
+    for (let i = 0; i <= 12; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        btn.onclick = () => addScore(team, i);
+        container.appendChild(btn);
+    }
+}
 
-    if (isNaN(value)) return;
+function addScore(team, value) {
 
     if (team === "A") {
         if (value === 0) {
             zeroA++;
+            addHistory("A", "0");
             if (zeroA === 3) {
                 scoreA -= 10;
                 zeroA = 0;
@@ -105,12 +122,12 @@ function addScore(team) {
         } else {
             zeroA = 0;
             scoreA += value;
-            addHistory("A", "+" + value);
+            addHistory("A", value.toString());
         }
 
         if (scoreA > 50) {
             scoreA = 25;
-            addHistory("A", "50超え → 25点に戻る");
+            addHistory("A", "50超え → 25点");
         }
 
         document.getElementById("scoreA").textContent = scoreA;
@@ -119,6 +136,7 @@ function addScore(team) {
     if (team === "B") {
         if (value === 0) {
             zeroB++;
+            addHistory("B", "0");
             if (zeroB === 3) {
                 scoreB -= 10;
                 zeroB = 0;
@@ -127,25 +145,23 @@ function addScore(team) {
         } else {
             zeroB = 0;
             scoreB += value;
-            addHistory("B", "+" + value);
+            addHistory("B", value.toString());
         }
 
         if (scoreB > 50) {
             scoreB = 25;
-            addHistory("B", "50超え → 25点に戻る");
+            addHistory("B", "50超え → 25点");
         }
 
         document.getElementById("scoreB").textContent = scoreB;
     }
-
-    input.value = "";
 }
 
 function addHistory(team, text) {
-    let historyDiv = document.getElementById("history" + team);
-    let p = document.createElement("div");
-    p.textContent = text;
-    historyDiv.prepend(p);
+    const historyDiv = document.getElementById("history" + team);
+    const entry = document.createElement("div");
+    entry.textContent = text;
+    historyDiv.prepend(entry);
 }
 
 function resetGame() {
@@ -159,6 +175,9 @@ function resetGame() {
     document.getElementById("historyA").innerHTML = "";
     document.getElementById("historyB").innerHTML = "";
 }
+
+createButtons("A");
+createButtons("B");
 </script>
 
 </body>
