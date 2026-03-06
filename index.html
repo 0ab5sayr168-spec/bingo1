@@ -6,69 +6,91 @@
 <title>モルック大会！</title>
 
 <style>
-body {
-    font-family: sans-serif;
-    background: #f2f2f2;
-    text-align: center;
-    margin: 0;
-    padding: 10px;
+
+body{
+font-family:sans-serif;
+background:#f2f2f2;
+margin:0;
+padding:10px;
+text-align:center;
 }
 
-h1 {
-    margin-bottom: 10px;
+h1{
+margin-bottom:15px;
 }
 
-.team {
-    background: white;
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.container{
+display:flex;
+flex-direction:column;
+gap:15px;
 }
 
-.score {
-    font-size: 28px;
-    font-weight: bold;
-    margin: 10px 0;
+/* PC表示 */
+@media (min-width:700px){
+.container{
+flex-direction:row;
+justify-content:center;
+align-items:flex-start;
+}
+.team{
+width:45%;
+}
 }
 
-.buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    margin-top: 10px;
+.team{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
-button {
-    padding: 12px;
-    font-size: 18px;
-    border: none;
-    border-radius: 8px;
-    background: #4CAF50;
-    color: white;
+.score{
+font-size:30px;
+font-weight:bold;
+margin:10px 0;
 }
 
-button:active {
-    background: #388E3C;
+.buttons{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:6px;
+margin-top:10px;
 }
 
-.history {
-    font-size: 14px;
-    margin-top: 10px;
-    text-align: left;
-    max-height: 120px;
-    overflow-y: auto;
-    background: #fafafa;
-    padding: 5px;
-    border-radius: 8px;
+button{
+padding:12px;
+font-size:18px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
 }
 
-.resetBtn {
-    margin-top: 15px;
-    padding: 12px 20px;
-    font-size: 16px;
-    background: #f44336;
+button:active{
+background:#388E3C;
 }
+
+.history{
+margin-top:10px;
+background:#fafafa;
+border-radius:8px;
+padding:5px;
+max-height:140px;
+overflow-y:auto;
+text-align:left;
+font-size:14px;
+}
+
+.resetBtn{
+margin-top:15px;
+padding:12px 20px;
+font-size:16px;
+background:#f44336;
+color:white;
+border:none;
+border-radius:8px;
+}
+
 </style>
 </head>
 
@@ -76,108 +98,169 @@ button:active {
 
 <h1>🪵 モルック大会！ 🪵</h1>
 
+<div class="container">
+
 <div class="team">
-    <h2>チームA</h2>
-    <div class="score">合計: <span id="scoreA">0</span></div>
-    <div class="buttons" id="buttonsA"></div>
-    <div class="history" id="historyA"></div>
+<h2>チームA</h2>
+<div class="score">合計: <span id="scoreA">0</span></div>
+<div class="buttons" id="buttonsA"></div>
+<div class="history" id="historyA"></div>
 </div>
 
 <div class="team">
-    <h2>チームB</h2>
-    <div class="score">合計: <span id="scoreB">0</span></div>
-    <div class="buttons" id="buttonsB"></div>
-    <div class="history" id="historyB"></div>
+<h2>チームB</h2>
+<div class="score">合計: <span id="scoreB">0</span></div>
+<div class="buttons" id="buttonsB"></div>
+<div class="history" id="historyB"></div>
+</div>
+
 </div>
 
 <button class="resetBtn" onclick="resetGame()">リセット</button>
 
 <script>
-let scoreA = 0;
-let scoreB = 0;
-let zeroA = 0;
-let zeroB = 0;
 
-function createButtons(team) {
-    const container = document.getElementById("buttons" + team);
-    for (let i = 0; i <= 12; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        btn.onclick = () => addScore(team, i);
-        container.appendChild(btn);
-    }
+let scoreA=0
+let scoreB=0
+let zeroA=0
+let zeroB=0
+
+function createButtons(team){
+
+const container=document.getElementById("buttons"+team)
+
+for(let i=0;i<=12;i++){
+
+const btn=document.createElement("button")
+
+btn.textContent=i
+
+btn.onclick=()=>addScore(team,i)
+
+container.appendChild(btn)
+
 }
 
-function addScore(team, value) {
-
-    if (team === "A") {
-        if (value === 0) {
-            zeroA++;
-            addHistory("A", "0");
-            if (zeroA === 3) {
-                scoreA -= 10;
-                zeroA = 0;
-                addHistory("A", "0×3 → -10点");
-            }
-        } else {
-            zeroA = 0;
-            scoreA += value;
-            addHistory("A", value.toString());
-        }
-
-        if (scoreA > 50) {
-            scoreA = 25;
-            addHistory("A", "50over → 25点");
-        }
-
-        document.getElementById("scoreA").textContent = scoreA;
-    }
-
-    if (team === "B") {
-        if (value === 0) {
-            zeroB++;
-            addHistory("B", "0");
-            if (zeroB === 3) {
-                scoreB -= 10;
-                zeroB = 0;
-                addHistory("B", "0×3 → -10点");
-            }
-        } else {
-            zeroB = 0;
-            scoreB += value;
-            addHistory("B", value.toString());
-        }
-
-        if (scoreB > 50) {
-            scoreB = 25;
-            addHistory("B", "50over → 25点");
-        }
-
-        document.getElementById("scoreB").textContent = scoreB;
-    }
 }
 
-function addHistory(team, text) {
-    const historyDiv = document.getElementById("history" + team);
-    const entry = document.createElement("div");
-    entry.textContent = text;
-    historyDiv.prepend(entry);
+function addScore(team,value){
+
+if(team==="A"){
+
+if(value===0){
+
+zeroA++
+
+addHistory("A","0")
+
+if(zeroA===3){
+
+scoreA-=10
+
+zeroA=0
+
+addHistory("A","0×3 → -10")
+
 }
 
-function resetGame() {
-    scoreA = 0;
-    scoreB = 0;
-    zeroA = 0;
-    zeroB = 0;
-
-    document.getElementById("scoreA").textContent = 0;
-    document.getElementById("scoreB").textContent = 0;
-    document.getElementById("historyA").innerHTML = "";
-    document.getElementById("historyB").innerHTML = "";
 }
 
-createButtons("A");
-createButtons("B");
+else{
+
+zeroA=0
+
+scoreA+=value
+
+addHistory("A",value)
+
+}
+
+if(scoreA>50){
+
+scoreA=25
+
+addHistory("A","50over → 25")
+
+}
+
+document.getElementById("scoreA").textContent=scoreA
+
+}
+
+if(team==="B"){
+
+if(value===0){
+
+zeroB++
+
+addHistory("B","0")
+
+if(zeroB===3){
+
+scoreB-=10
+
+zeroB=0
+
+addHistory("B","0×3 → -10")
+
+}
+
+}
+
+else{
+
+zeroB=0
+
+scoreB+=value
+
+addHistory("B",value)
+
+}
+
+if(scoreB>50){
+
+scoreB=25
+
+addHistory("B","50over → 25")
+
+}
+
+document.getElementById("scoreB").textContent=scoreB
+
+}
+
+}
+
+function addHistory(team,text){
+
+const history=document.getElementById("history"+team)
+
+const item=document.createElement("div")
+
+item.textContent=text
+
+history.prepend(item)
+
+}
+
+function resetGame(){
+
+scoreA=0
+scoreB=0
+zeroA=0
+zeroB=0
+
+document.getElementById("scoreA").textContent=0
+document.getElementById("scoreB").textContent=0
+
+document.getElementById("historyA").innerHTML=""
+document.getElementById("historyB").innerHTML=""
+
+}
+
+createButtons("A")
+createButtons("B")
+
 </script>
 
 </body>
