@@ -25,7 +25,6 @@ flex-direction:column;
 gap:15px;
 }
 
-/* PC表示 */
 @media (min-width:700px){
 .container{
 flex-direction:row;
@@ -42,6 +41,18 @@ background:white;
 padding:15px;
 border-radius:12px;
 box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.teamName{
+font-size:20px;
+margin-bottom:5px;
+}
+
+.teamName input{
+font-size:20px;
+padding:3px;
+width:120px;
+text-align:center;
 }
 
 .score{
@@ -101,17 +112,36 @@ border-radius:8px;
 <div class="container">
 
 <div class="team">
-<h2>チームA</h2>
-<div class="score">合計: <span id="scoreA">0</span></div>
-<div class="buttons" id="buttonsA"></div>
-<div class="history" id="historyA"></div>
+
+<div class="teamName">
+<input id="teamNameA" value="A"> チーム
 </div>
 
+<div class="score">
+合計: <span id="scoreA">0</span>
+</div>
+
+<div class="buttons" id="buttonsA"></div>
+
+<div class="history" id="historyA"></div>
+
+</div>
+
+
 <div class="team">
-<h2>チームB</h2>
-<div class="score">合計: <span id="scoreB">0</span></div>
+
+<div class="teamName">
+<input id="teamNameB" value="B"> チーム
+</div>
+
+<div class="score">
+合計: <span id="scoreB">0</span>
+</div>
+
 <div class="buttons" id="buttonsB"></div>
+
 <div class="history" id="historyB"></div>
+
 </div>
 
 </div>
@@ -150,15 +180,12 @@ if(team==="A"){
 if(value===0){
 
 zeroA++
-
 addHistory("A","0")
 
 if(zeroA===3){
 
 scoreA-=10
-
 zeroA=0
-
 addHistory("A","0×3 → -10")
 
 }
@@ -168,9 +195,7 @@ addHistory("A","0×3 → -10")
 else{
 
 zeroA=0
-
 scoreA+=value
-
 addHistory("A",value)
 
 }
@@ -178,7 +203,6 @@ addHistory("A",value)
 if(scoreA>50){
 
 scoreA=25
-
 addHistory("A","50over → 25")
 
 }
@@ -192,15 +216,12 @@ if(team==="B"){
 if(value===0){
 
 zeroB++
-
 addHistory("B","0")
 
 if(zeroB===3){
 
 scoreB-=10
-
 zeroB=0
-
 addHistory("B","0×3 → -10")
 
 }
@@ -210,9 +231,7 @@ addHistory("B","0×3 → -10")
 else{
 
 zeroB=0
-
 scoreB+=value
-
 addHistory("B",value)
 
 }
@@ -220,7 +239,6 @@ addHistory("B",value)
 if(scoreB>50){
 
 scoreB=25
-
 addHistory("B","50over → 25")
 
 }
