@@ -16,7 +16,7 @@ text-align:center;
 }
 
 h1{
-margin-bottom:15px;
+margin-bottom:10px;
 }
 
 .container{
@@ -43,16 +43,12 @@ border-radius:12px;
 box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
-.teamName{
-font-size:20px;
-margin-bottom:5px;
-}
-
 .teamName input{
 font-size:20px;
-padding:3px;
-width:120px;
+width:260px;
+max-width:90%;
 text-align:center;
+padding:5px;
 }
 
 .score{
@@ -77,19 +73,24 @@ background:#4CAF50;
 color:white;
 }
 
-button:active{
-background:#388E3C;
+button:disabled{
+background:#ccc;
+}
+
+.undoBtn{
+margin-top:8px;
+background:#ff9800;
 }
 
 .history{
 margin-top:10px;
 background:#fafafa;
 border-radius:8px;
-padding:5px;
-max-height:140px;
+padding:8px;
+max-height:160px;
 overflow-y:auto;
 text-align:left;
-font-size:14px;
+font-size:16px;
 }
 
 .resetBtn{
@@ -102,19 +103,38 @@ border:none;
 border-radius:8px;
 }
 
+.ruleSwitch{
+margin-bottom:10px;
+font-size:16px;
+}
+
+.win{
+font-size:26px;
+color:#d32f2f;
+font-weight:bold;
+margin-top:10px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>🪵 モルック大会！ 🪵</h1>
+<h1>🪵　モルック大会！（後半）　🪵</h1>
+
+<div class="ruleSwitch">
+<label>
+<input type="checkbox" id="zeroRule">
+0を3回で -10点
+</label>
+</div>
 
 <div class="container">
 
 <div class="team">
 
 <div class="teamName">
-<input id="teamNameA" value="A"> チーム
+<input id="teamNameA" size="15" maxlength="15"> チーム
 </div>
 
 <div class="score">
@@ -123,15 +143,18 @@ border-radius:8px;
 
 <div class="buttons" id="buttonsA"></div>
 
+<button class="undoBtn" onclick="undo('A')">
+1つ戻す
+</button>
+
 <div class="history" id="historyA"></div>
 
 </div>
 
-
 <div class="team">
 
 <div class="teamName">
-<input id="teamNameB" value="B"> チーム
+<input id="teamNameB" size="15" maxlength="15"> チーム
 </div>
 
 <div class="score">
@@ -140,11 +163,17 @@ border-radius:8px;
 
 <div class="buttons" id="buttonsB"></div>
 
+<button class="undoBtn" onclick="undo('B')">
+1つ戻す
+</button>
+
 <div class="history" id="historyB"></div>
 
 </div>
 
 </div>
+
+<div id="winner" class="win"></div>
 
 <button class="resetBtn" onclick="resetGame()">リセット</button>
 
@@ -155,6 +184,54 @@ let scoreB=0
 let zeroA=0
 let zeroB=0
 
+let historyA=[]
+let historyB=[]
+
+let turn="A"
+
+function saveData(){
+
+localStorage.setItem("molkkyData",JSON.stringify({
+
+scoreA,
+scoreB,
+historyA,
+historyB,
+turn,
+teamA:document.getElementById("teamNameA").value,
+teamB:document.getElementById("teamNameB").value,
+zeroRule:document.getElementById("zeroRule").checked
+
+}))
+
+}
+
+function loadData(){
+
+let data=localStorage.getItem("molkkyData")
+
+if(!data) return
+
+data=JSON.parse(data)
+
+scoreA=data.scoreA||0
+scoreB=data.scoreB||0
+historyA=data.historyA||[]
+historyB=data.historyB||[]
+turn=data.turn||"A"
+
+document.getElementById("teamNameA").value=data.teamA||"A"
+document.getElementById("teamNameB").value=data.teamB||"B"
+
+document.getElementById("zeroRule").checked=data.zeroRule
+
+recalculate("A")
+recalculate("B")
+
+updateButtons()
+
+}
+
 function createButtons(team){
 
 const container=document.getElementById("buttons"+team)
@@ -162,9 +239,7 @@ const container=document.getElementById("buttons"+team)
 for(let i=0;i<=12;i++){
 
 const btn=document.createElement("button")
-
 btn.textContent=i
-
 btn.onclick=()=>addScore(team,i)
 
 container.appendChild(btn)
@@ -173,77 +248,145 @@ container.appendChild(btn)
 
 }
 
+function updateButtons(){
+
+document.querySelectorAll("#buttonsA button").forEach(b=>{
+b.disabled=(turn!=="A")
+})
+
+document.querySelectorAll("#buttonsB button").forEach(b=>{
+b.disabled=(turn!=="B")
+})
+
+}
+
 function addScore(team,value){
+
+if(team!==turn) return
+
+if(team==="A") historyA.push(value)
+if(team==="B") historyB.push(value)
+
+turn=(team==="A")?"B":"A"
+
+recalculate("A")
+recalculate("B")
+
+updateButtons()
+
+saveData()
+
+}
+
+function undo(team){
+
+if(team==="A" && historyA.length>0){
+
+historyA.pop()
+turn="A"
+recalculate("A")
+
+}
+
+if(team==="B" && historyB.length>0){
+
+historyB.pop()
+turn="B"
+recalculate("B")
+
+}
+
+updateButtons()
+
+saveData()
+
+}
+
+function recalculate(team){
+
+let history=team==="A"?historyA:historyB
+
+let score=0
+let zero=0
+
+let historyDiv=document.getElementById("history"+team)
+historyDiv.innerHTML=""
+
+let zeroRule=document.getElementById("zeroRule").checked
+
+let round=1
+
+for(let v of history){
+
+if(v===0){
+
+zero++
+
+if(zeroRule && zero===3){
+
+score-=10
+zero=0
+addHistory(team,round+"回目 : 0×3 → -10")
+
+}else{
+
+addHistory(team,round+"回目 : 0")
+
+}
+
+}else{
+
+zero=0
+score+=v
+addHistory(team,round+"回目 : "+v)
+
+}
+
+if(score>50){
+
+score=25
+addHistory(team,round+"回目 : 50over → 25")
+
+}
+
+round++
+
+}
 
 if(team==="A"){
 
-if(value===0){
-
-zeroA++
-addHistory("A","0")
-
-if(zeroA===3){
-
-scoreA-=10
-zeroA=0
-addHistory("A","0×3 → -10")
-
-}
-
-}
-
-else{
-
-zeroA=0
-scoreA+=value
-addHistory("A",value)
-
-}
-
-if(scoreA>50){
-
-scoreA=25
-addHistory("A","50over → 25")
-
-}
-
+scoreA=score
+zeroA=zero
 document.getElementById("scoreA").textContent=scoreA
 
-}
+}else{
 
-if(team==="B"){
-
-if(value===0){
-
-zeroB++
-addHistory("B","0")
-
-if(zeroB===3){
-
-scoreB-=10
-zeroB=0
-addHistory("B","0×3 → -10")
-
-}
-
-}
-
-else{
-
-zeroB=0
-scoreB+=value
-addHistory("B",value)
-
-}
-
-if(scoreB>50){
-
-scoreB=25
-addHistory("B","50over → 25")
-
-}
-
+scoreB=score
+zeroB=zero
 document.getElementById("scoreB").textContent=scoreB
+
+}
+
+checkWin()
+
+}
+
+function checkWin(){
+
+let nameA=document.getElementById("teamNameA").value
+let nameB=document.getElementById("teamNameB").value
+
+if(scoreA===50){
+
+document.getElementById("winner").textContent=nameA+"チーム 勝利！"
+
+}else if(scoreB===50){
+
+document.getElementById("winner").textContent=nameB+"チーム 勝利！"
+
+}else{
+
+document.getElementById("winner").textContent=""
 
 }
 
@@ -254,7 +397,6 @@ function addHistory(team,text){
 const history=document.getElementById("history"+team)
 
 const item=document.createElement("div")
-
 item.textContent=text
 
 history.prepend(item)
@@ -268,16 +410,35 @@ scoreB=0
 zeroA=0
 zeroB=0
 
+historyA=[]
+historyB=[]
+
+turn="A"
+
 document.getElementById("scoreA").textContent=0
 document.getElementById("scoreB").textContent=0
 
 document.getElementById("historyA").innerHTML=""
 document.getElementById("historyB").innerHTML=""
 
+document.getElementById("winner").textContent=""
+
+localStorage.removeItem("molkkyData")
+
+updateButtons()
+
 }
 
 createButtons("A")
 createButtons("B")
+
+loadData()
+
+updateButtons()
+
+document.getElementById("teamNameA").oninput=saveData
+document.getElementById("teamNameB").oninput=saveData
+document.getElementById("zeroRule").onchange=()=>{recalculate("A");recalculate("B");saveData()}
 
 </script>
 
