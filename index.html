@@ -1,446 +1,122 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>モルック大会！</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ★スマホ対応 -->
+  <title>🎉 ビンゴカード（参加者）🎉</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ffcc70, #ff8177);
+      color: white;
+      margin: 0;
+      padding: 10px;
+    }
 
-<style>
+    h1 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: clamp(24px, 6vw, 36px); /* ★スマホで自動調整 */
+      text-shadow: 2px 2px 4px #ff4081;
+    }
 
-body{
-font-family:sans-serif;
-background:#f2f2f2;
-margin:0;
-padding:10px;
-text-align:center;
-}
+    table {
+      margin: 15px auto;
+      border-collapse: collapse;
+      width: 90vw;              /* ★スマホ画面いっぱいまで広げる */
+      max-width: 400px;         /* ★大画面ではこれ以上広がらない */
+      aspect-ratio: 1 / 1;      /* ★正方形に維持 */
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
 
-h1{
-margin-bottom:10px;
-}
+    td {
+      border: 2px solid white;
+      text-align: center;
+      font-size: clamp(16px, 5vw, 28px); /* ★スマホで見やすく文字調整 */
+      cursor: pointer;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.2s ease;
+      width: 20%;   /* ★5列均等 */
+      height: 20%;  /* ★縦横比も均等 */
+    }
 
-.container{
-display:flex;
-flex-direction:column;
-gap:15px;
-}
+    td:hover {
+      background: rgba(255,255,255,0.4);
+    }
 
-@media (min-width:700px){
-.container{
-flex-direction:row;
-justify-content:center;
-align-items:flex-start;
-}
-.team{
-width:45%;
-}
-}
+    td.checked {
+      background: #ff5722;
+      color: white;
+      transform: scale(1.05);
+    }
 
-.team{
-background:white;
-padding:15px;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
+    td.free {
+      background: gold;
+      color: #d50000;
+      font-weight: bold;
+    }
 
-.teamName input{
-font-size:20px;
-width:260px;
-max-width:90%;
-text-align:center;
-padding:5px;
-}
-
-.score{
-font-size:30px;
-font-weight:bold;
-margin:10px 0;
-}
-
-.buttons{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:6px;
-margin-top:10px;
-}
-
-button{
-padding:12px;
-font-size:18px;
-border:none;
-border-radius:8px;
-background:#4CAF50;
-color:white;
-}
-
-button:disabled{
-background:#ccc;
-}
-
-.undoBtn{
-margin-top:8px;
-background:#ff9800;
-}
-
-.history{
-margin-top:10px;
-background:#fafafa;
-border-radius:8px;
-padding:8px;
-max-height:160px;
-overflow-y:auto;
-text-align:left;
-font-size:16px;
-}
-
-.resetBtn{
-margin-top:15px;
-padding:12px 20px;
-font-size:16px;
-background:#f44336;
-color:white;
-border:none;
-border-radius:8px;
-}
-
-.ruleSwitch{
-margin-bottom:10px;
-font-size:16px;
-}
-
-.win{
-font-size:26px;
-color:#d32f2f;
-font-weight:bold;
-margin-top:10px;
-}
-
-</style>
+    #message {
+      font-size: clamp(20px, 6vw, 32px); /* ★画面に合わせる */
+      font-weight: bold;
+      margin-top: 20px;
+      text-shadow: 2px 2px 6px #000;
+    }
+  </style>
 </head>
-
 <body>
-
-<h1>🪵　モルック大会！（後半）　🪵</h1>
-
-<div class="ruleSwitch">
-<label>
-<input type="checkbox" id="zeroRule">
-0を3回で -10点
-</label>
-</div>
-
-<div class="container">
-
-<div class="team">
-
-<div class="teamName">
-<input id="teamNameA" size="15" maxlength="15"> チーム
-</div>
-
-<div class="score">
-合計: <span id="scoreA">0</span>
-</div>
-
-<div class="buttons" id="buttonsA"></div>
-
-<button class="undoBtn" onclick="undo('A')">
-1つ戻す
-</button>
-
-<div class="history" id="historyA"></div>
-
-</div>
-
-<div class="team">
-
-<div class="teamName">
-<input id="teamNameB" size="15" maxlength="15"> チーム
-</div>
-
-<div class="score">
-合計: <span id="scoreB">0</span>
-</div>
-
-<div class="buttons" id="buttonsB"></div>
-
-<button class="undoBtn" onclick="undo('B')">
-1つ戻す
-</button>
-
-<div class="history" id="historyB"></div>
-
-</div>
-
-</div>
-
-<div id="winner" class="win"></div>
-
-<button class="resetBtn" onclick="resetGame()">リセット</button>
-
-<script>
-
-let scoreA=0
-let scoreB=0
-let zeroA=0
-let zeroB=0
-
-let historyA=[]
-let historyB=[]
-
-let turn="A"
-
-function saveData(){
-
-localStorage.setItem("molkkyData",JSON.stringify({
-
-scoreA,
-scoreB,
-historyA,
-historyB,
-turn,
-teamA:document.getElementById("teamNameA").value,
-teamB:document.getElementById("teamNameB").value,
-zeroRule:document.getElementById("zeroRule").checked
-
-}))
-
-}
-
-function loadData(){
-
-let data=localStorage.getItem("molkkyData")
-
-if(!data) return
-
-data=JSON.parse(data)
-
-scoreA=data.scoreA||0
-scoreB=data.scoreB||0
-historyA=data.historyA||[]
-historyB=data.historyB||[]
-turn=data.turn||"A"
-
-document.getElementById("teamNameA").value=data.teamA||"A"
-document.getElementById("teamNameB").value=data.teamB||"B"
-
-document.getElementById("zeroRule").checked=data.zeroRule
-
-recalculate("A")
-recalculate("B")
-
-updateButtons()
-
-}
-
-function createButtons(team){
-
-const container=document.getElementById("buttons"+team)
-
-for(let i=0;i<=12;i++){
-
-const btn=document.createElement("button")
-btn.textContent=i
-btn.onclick=()=>addScore(team,i)
-
-container.appendChild(btn)
-
-}
-
-}
-
-function updateButtons(){
-
-document.querySelectorAll("#buttonsA button").forEach(b=>{
-b.disabled=(turn!=="A")
-})
-
-document.querySelectorAll("#buttonsB button").forEach(b=>{
-b.disabled=(turn!=="B")
-})
-
-}
-
-function addScore(team,value){
-
-if(team!==turn) return
-
-if(team==="A") historyA.push(value)
-if(team==="B") historyB.push(value)
-
-turn=(team==="A")?"B":"A"
-
-recalculate("A")
-recalculate("B")
-
-updateButtons()
-
-saveData()
-
-}
-
-function undo(team){
-
-if(team==="A" && historyA.length>0){
-
-historyA.pop()
-turn="A"
-recalculate("A")
-
-}
-
-if(team==="B" && historyB.length>0){
-
-historyB.pop()
-turn="B"
-recalculate("B")
-
-}
-
-updateButtons()
-
-saveData()
-
-}
-
-function recalculate(team){
-
-let history=team==="A"?historyA:historyB
-
-let score=0
-let zero=0
-
-let historyDiv=document.getElementById("history"+team)
-historyDiv.innerHTML=""
-
-let zeroRule=document.getElementById("zeroRule").checked
-
-let round=1
-
-for(let v of history){
-
-if(v===0){
-
-zero++
-
-if(zeroRule && zero===3){
-
-score-=10
-zero=0
-addHistory(team,round+"回目 : 0×3 → -10")
-
-}else{
-
-addHistory(team,round+"回目 : 0")
-
-}
-
-}else{
-
-zero=0
-score+=v
-addHistory(team,round+"回目 : "+v)
-
-}
-
-if(score>50){
-
-score=25
-addHistory(team,round+"回目 : 50over → 25")
-
-}
-
-round++
-
-}
-
-if(team==="A"){
-
-scoreA=score
-zeroA=zero
-document.getElementById("scoreA").textContent=scoreA
-
-}else{
-
-scoreB=score
-zeroB=zero
-document.getElementById("scoreB").textContent=scoreB
-
-}
-
-checkWin()
-
-}
-
-function checkWin(){
-
-let nameA=document.getElementById("teamNameA").value
-let nameB=document.getElementById("teamNameB").value
-
-if(scoreA===50){
-
-document.getElementById("winner").textContent=nameA+"チーム 勝利！"
-
-}else if(scoreB===50){
-
-document.getElementById("winner").textContent=nameB+"チーム 勝利！"
-
-}else{
-
-document.getElementById("winner").textContent=""
-
-}
-
-}
-
-function addHistory(team,text){
-
-const history=document.getElementById("history"+team)
-
-const item=document.createElement("div")
-item.textContent=text
-
-history.prepend(item)
-
-}
-
-function resetGame(){
-
-scoreA=0
-scoreB=0
-zeroA=0
-zeroB=0
-
-historyA=[]
-historyB=[]
-
-turn="A"
-
-document.getElementById("scoreA").textContent=0
-document.getElementById("scoreB").textContent=0
-
-document.getElementById("historyA").innerHTML=""
-document.getElementById("historyB").innerHTML=""
-
-document.getElementById("winner").textContent=""
-
-localStorage.removeItem("molkkyData")
-
-updateButtons()
-
-}
-
-createButtons("A")
-createButtons("B")
-
-loadData()
-
-updateButtons()
-
-document.getElementById("teamNameA").oninput=saveData
-document.getElementById("teamNameB").oninput=saveData
-document.getElementById("zeroRule").onchange=()=>{recalculate("A");recalculate("B");saveData()}
-
-</script>
-
+  <h1>🎯 ビンゴカード 🎯</h1>
+  <table id="bingo"></table>
+  <div id="message"></div>
+
+  <script>
+    const table = document.getElementById("bingo");
+    const numbers = Array.from({ length: 75 }, (_, i) => i + 1)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 25);
+
+    let cells = [];
+
+    for (let i = 0; i < 5; i++) {
+      const row = document.createElement("tr");
+      for (let j = 0; j < 5; j++) {
+        const index = i * 5 + j;
+        const cell = document.createElement("td");
+
+        if (index === 12) { // 中央のマス
+          cell.textContent = "FREE!";
+          cell.classList.add("checked", "free");
+        } else {
+          cell.textContent = numbers[index];
+          cell.onclick = () => {
+            cell.classList.toggle("checked");
+            checkBingo();
+          };
+        }
+        row.appendChild(cell);
+        cells.push(cell);
+      }
+      table.appendChild(row);
+    }
+
+    function checkBingo() {
+      const grid = Array(5).fill().map((_, i) => cells.slice(i*5, i*5+5));
+      const lines = [
+        ...grid, // 横
+        ...[0,1,2,3,4].map(i => grid.map(r => r[i])), // 縦
+        grid.map((r,i)=>r[i]), // 斜め1
+        grid.map((r,i)=>r[4-i]) // 斜め2
+      ];
+
+      const bingo = lines.some(line => line.every(c => c.classList.contains("checked")));
+      const message = document.getElementById("message");
+      if (bingo) {
+        message.textContent = "🎉✨ BINGO!! ✨🎉";
+        message.style.color = "#ffff00";
+        message.style.textShadow = "0 0 20px red";
+      }
+    }
+  </script>
 </body>
 </html>
